@@ -1,5 +1,6 @@
 package com.foureyez.ebreader.modal;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 
@@ -8,7 +9,8 @@ public class Metadata {
     private String title;
     private String creator;
     private String publisher;
-    private Date date;
+    private String contributor;
+    private String date;
     private String type;
     private String format;
     private String identifier;
@@ -40,11 +42,19 @@ public class Metadata {
         this.publisher = publisher;
     }
 
-    public Date getDate() {
+    public String getContributor() {
+        return contributor;
+    }
+
+    public void setContributor(String contributor) {
+        this.contributor = contributor;
+    }
+
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -102,6 +112,7 @@ public class Metadata {
                 "title='" + title + '\'' +
                 ", creator='" + creator + '\'' +
                 ", publisher='" + publisher + '\'' +
+                ", contributor='" + contributor + '\'' +
                 ", date=" + date +
                 ", type='" + type + '\'' +
                 ", format='" + format + '\'' +

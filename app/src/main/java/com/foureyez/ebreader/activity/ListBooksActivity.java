@@ -26,7 +26,7 @@ public class ListBooksActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
-                intent.setClass(view.getContext(), BooksReaderActivity.class);
+                intent.setClass(view.getContext(), ReaderActivity.class);
                 startActivity(intent);
             }
         });
