@@ -2,7 +2,7 @@ package com.foureyez.ebreader.utils;
 
 import android.os.Environment;
 
-public class FileUtilitiy {
+public class FileUtils {
 
     /* Checks if external storage is available to at least read */
     public static boolean isExternalStorageReadable() {

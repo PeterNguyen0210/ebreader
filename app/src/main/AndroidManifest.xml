@@ -20,10 +20,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.ScanBooksActivity"
+            android:name=".activity.BooksReaderActivity"
             android:label="@string/title_activity_scan_books"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_" />
 </manifest>

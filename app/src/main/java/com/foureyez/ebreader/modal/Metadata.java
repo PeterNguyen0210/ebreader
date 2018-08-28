@@ -2,6 +2,7 @@ package com.foureyez.ebreader.modal;
 
 import java.util.Date;
 
+
 public class Metadata {
 
     private String title;
@@ -93,5 +94,21 @@ public class Metadata {
 
     public void setRights(String rights) {
         this.rights = rights;
+    }
+
+    @Override
+    public String toString() {
+        return "Metadata{" +
+                "title='" + title + '\'' +
+                ", creator='" + creator + '\'' +
+                ", publisher='" + publisher + '\'' +
+                ", date=" + date +
+                ", type='" + type + '\'' +
+                ", format='" + format + '\'' +
+                ", identifier='" + identifier + '\'' +
+                ", source='" + source + '\'' +
+                ", language='" + language + '\'' +
+                ", rights='" + rights + '\'' +
+                '}';
     }
 }

@@ -1,5 +1,6 @@
 package com.foureyez.ebreader.modal;
 
+
 public class Item {
 
     private String id;
@@ -18,6 +19,7 @@ public class Item {
         return href;
     }
 
+
     public void setHref(String href) {
         this.href = href;
     }
@@ -26,7 +28,17 @@ public class Item {
         return mediaType;
     }
 
+
     public void setMediaType(String mediaType) {
         this.mediaType = mediaType;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "id='" + id + '\'' +
+                ", href='" + href + '\'' +
+                ", mediaType='" + mediaType + '\'' +
+                '}';
     }
 }
