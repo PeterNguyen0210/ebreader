@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(EbookReader());
 
-class MyApp extends StatelessWidget {
+class EbookReader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -11,96 +11,76 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: new RandomWords());
+        home: new BookShelfViewer());
   }
 }
 
-class RandomWords extends StatefulWidget {
+class BookShelfViewer extends StatefulWidget {
   @override
-  RandomWordsState createState() => new RandomWordsState();
+  BookShelfViewerState createState() => new BookShelfViewerState();
 }
 
-class RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
-  final Set<WordPair> _saved = new Set<WordPair>();
+class BookShelfViewerState extends State<BookShelfViewer> {
+  var _bookshelves = <String>[];
   final _biggerFont = const TextStyle(fontSize: 18);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBookshelves();
+  }
+
+  void _loadBookshelves() {
+    print('loading bookshelves');
+    _bookshelves.add("Fiction");
+    _bookshelves.add("Mystery");
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Random Word Generator'),
+        title: Text('BookShelves'),
         actions: <Widget>[
-          new IconButton(icon: const Icon(Icons.list), onPressed: _pushSaved)
+          new IconButton(
+              icon: const Icon(Icons.settings), onPressed: _openExtraOptions)
         ],
       ),
-      body: _buildSuggestions(),
+      body: _showBookshelves(),
     );
   }
 
-  void _pushSaved() {
-    Navigator.of(context)
-        .push(new MaterialPageRoute<void>(builder: (BuildContext context) {
-      final Iterable<ListTile> tiles = _saved.map((WordPair pair) {
-        return new ListTile(
-          title: new Text(
-            pair.asPascalCase,
-            style: _biggerFont,
-          ),
-        );
-      });
-
-      final List<Widget> divided = ListTile.divideTiles(
-        context: context,
-        tiles: tiles,
-      ).toList();
-
-      return new Scaffold(
-        // Add 6 lines from here...
-        appBar: new AppBar(
-          title: const Text('Saved Suggestions'),
-        ),
-        body: new ListView(children: divided),
+  Widget _showBookshelves() {
+    print('showing bookshelves');
+    if (_bookshelves.length == 0) {
+      return Center(
+        child: Text("No Bookshelves to show"),
       );
-    }));
+    }
+
+    final Iterable<ListTile> tiles = _bookshelves.map((String bookshelf) {
+      return new ListTile(
+        title: new Text(
+          bookshelf,
+          style: _biggerFont,
+        ),
+        onTap: () {
+          _openBookShelf(bookshelf);
+        },
+      );
+    });
+
+    final List<Widget> divided = ListTile.divideTiles(
+      context: context,
+      tiles: tiles,
+    ).toList();
+
+    return new ListView(children: divided);
   }
 
-  Widget _buildSuggestions() {
-    return ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemBuilder: (context, i) {
-          if (i.isOdd) return Divider();
-
-          final index = i ~/ 2;
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10));
-          }
-
-          return _buildRow(_suggestions[index]);
-        });
+  void _openBookShelf(String shelfName) {
+    print(shelfName + " opened");
   }
 
-  Widget _buildRow(WordPair pair) {
-    final bool alreadySaved = _saved.contains(pair);
-
-    return ListTile(
-      title: Text(
-        pair.asPascalCase,
-        style: _biggerFont,
-      ),
-      trailing: new Icon(
-        alreadySaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadySaved ? Colors.red : null,
-      ),
-      onTap: () {
-        setState(() {
-          if (alreadySaved) {
-            _saved.remove(pair);
-          } else {
-            _saved.add(pair);
-          }
-        });
-      },
-    );
-  }
+  void _openExtraOptions() {}
 }
