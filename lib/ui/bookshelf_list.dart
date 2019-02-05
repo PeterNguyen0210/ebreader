@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ebook_reader/model/bookshelf.dart';
 import 'package:ebook_reader/bloc/bookshelf_bloc.dart';
+import 'package:ebook_reader/db/database.dart';
 
 class BookShelfViewer extends StatefulWidget {
   @override
@@ -32,7 +33,7 @@ class BookShelfViewerState extends State<BookShelfViewer> {
               icon: const Icon(Icons.settings), onPressed: _openExtraOptions)
         ],
       ),
-      body: _generateBookshelvesScreen(),
+      body: generateBookshelfList(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           addBookshelf();
@@ -42,18 +43,7 @@ class BookShelfViewerState extends State<BookShelfViewer> {
     );
   }
 
-  Widget _generateBookshelvesScreen() {
-    print('showing bookshelves');
-    if (_bookshelves.length == 0) {
-      return Center(child: Text('No Bookshelf to show'));
-    }
-
-    return Container(
-      child: _getBookshelfList(),
-    );
-  }
-
-  Widget _getBookshelfList() {
+  Widget generateBookshelfList() {
     return new StreamBuilder(
         stream: bloc.allBookshelves,
         builder: (context, AsyncSnapshot<List<BookShelf>> snapshot) {
@@ -67,6 +57,7 @@ class BookShelfViewerState extends State<BookShelfViewer> {
   }
 
   Widget buildList(AsyncSnapshot<List<BookShelf>> snapshot) {
+    print('Bookshelves : ' + snapshot.data.length.toString());
     return ListView.builder(
         itemCount: snapshot.data.length,
         itemBuilder: (BuildContext context, int i) {
@@ -84,7 +75,8 @@ class BookShelfViewerState extends State<BookShelfViewer> {
 
   void addBookshelf() {
     print('Adding Bookshelf');
-    bloc.fetchAllBookshelves();
+    DBProvider.db.addBookshelf("All");
+    setState(() {});
   }
 
   void openBookshelf(int id) {

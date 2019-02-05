@@ -38,23 +38,25 @@ class DBProvider {
           "author_name TEXT,"
           "file_path TEXT"
           ")");
-      await db.rawInsert("INSERT Into BookShelf (id,name)"
-          "VALUES (1,'All')");
     });
   }
 
-  addBookshelf(BookShelf bookshelf) async {
+  addBookshelf(String name) async {
     final db = await database;
     //get the biggest id in the table
     var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM Bookshelf");
     int id = table.first["id"];
-
+    print(id);
     //insert to the table using the new id
     var raw = await db.rawInsert(
         "INSERT Into BookShelf (id,name)"
         " VALUES (?,?)",
-        [id, bookshelf.name]);
+        [id, name]);
     return raw;
+  }
+
+  deleteBookshelf(int id) async {
+    final db = await database;
   }
 
   Future<List<BookShelf>> getAllBookshelves() async {
