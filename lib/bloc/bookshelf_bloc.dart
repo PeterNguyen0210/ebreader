@@ -13,6 +13,11 @@ class BookshelfBloc {
     _bookshelvesFetcher.sink.add(bookshelfList);
   }
 
+  addBookshelf(String name) async {
+    var out = await DBProvider.db.addBookshelf(name);
+    print("Bloc" + out.toString());
+  }
+
   dispose() {
     _bookshelvesFetcher.close();
   }

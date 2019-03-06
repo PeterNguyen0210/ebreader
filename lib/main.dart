@@ -11,6 +11,6 @@ class EbookReader extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: new BookShelfViewer());
+        home: new BookShelfListViewer());
   }
 }

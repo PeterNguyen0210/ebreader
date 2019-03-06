@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:ebook_reader/model/bookshelf.dart';
 import 'package:ebook_reader/bloc/bookshelf_bloc.dart';
-import 'package:ebook_reader/db/database.dart';
+import 'package:ebook_reader/ui/bookshelf.dart';
+import 'package:ebook_reader/model/constants.dart';
 
-class BookShelfViewer extends StatefulWidget {
+class BookShelfListViewer extends StatefulWidget {
   @override
-  BookShelfViewerState createState() => new BookShelfViewerState();
+  BookShelfListViewerState createState() => new BookShelfListViewerState();
 }
 
-class BookShelfViewerState extends State<BookShelfViewer> {
-  var _bookshelves = <String>[];
+class BookShelfListViewerState extends State<BookShelfListViewer> {
   final _biggerFont = const TextStyle(fontSize: 18);
+  String viewType = Constants.LIST_VIEW;
 
   @override
   void initState() {
@@ -29,8 +30,17 @@ class BookShelfViewerState extends State<BookShelfViewer> {
       appBar: AppBar(
         title: Text('EBReader'),
         actions: <Widget>[
-          new IconButton(
-              icon: const Icon(Icons.settings), onPressed: _openExtraOptions)
+          PopupMenuButton<String>(
+            onSelected: doAction,
+            itemBuilder: (BuildContext context) {
+              return Constants.rightMenuChoices.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
         ],
       ),
       body: generateBookshelfList(),
@@ -48,7 +58,11 @@ class BookShelfViewerState extends State<BookShelfViewer> {
         stream: bloc.allBookshelves,
         builder: (context, AsyncSnapshot<List<BookShelf>> snapshot) {
           if (snapshot.hasData) {
-            return buildList(snapshot);
+            if (viewType == Constants.LIST_VIEW) {
+              return buildList(snapshot);
+            } else {
+              return buildGrid(snapshot);
+            }
           } else if (snapshot.hasError) {
             return Text(snapshot.error.toString());
           }
@@ -57,7 +71,7 @@ class BookShelfViewerState extends State<BookShelfViewer> {
   }
 
   Widget buildList(AsyncSnapshot<List<BookShelf>> snapshot) {
-    print('Bookshelves : ' + snapshot.data.length.toString());
+    print('Bookshelves List: ' + snapshot.data.length.toString());
     return ListView.builder(
         itemCount: snapshot.data.length,
         itemBuilder: (BuildContext context, int i) {
@@ -67,21 +81,55 @@ class BookShelfViewerState extends State<BookShelfViewer> {
               style: _biggerFont,
             ),
             onTap: () {
-              openBookshelf(snapshot.data[i].id);
+              openBookshelf(snapshot.data[i]);
             },
+          );
+        });
+  }
+
+  Widget buildGrid(AsyncSnapshot<List<BookShelf>> snapshot) {
+    print('Bookshelves Grid : ' + snapshot.data.length.toString());
+    return GridView.builder(
+        itemCount: snapshot.data.length,
+        gridDelegate:
+            new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        itemBuilder: (BuildContext context, int i) {
+          return Card(
+            elevation: 5.0,
+            child: new Container(
+              alignment: Alignment.center,
+              child: new Text(snapshot.data[i].name),
+            ),
           );
         });
   }
 
   void addBookshelf() {
     print('Adding Bookshelf');
-    DBProvider.db.addBookshelf("All");
+    bloc.addBookshelf("Testing");
     setState(() {});
   }
 
-  void openBookshelf(int id) {
-    print(id);
+  void openBookshelf(BookShelf bookshelf) {
+    print(bookshelf);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => BookShelfViewer(bookshelf: bookshelf)),
+    );
   }
 
-  void _openExtraOptions() {}
+  void doAction(String choice) {
+    switch (choice) {
+      case Constants.GRID_VIEW:
+        viewType = Constants.GRID_VIEW;
+        setState(() {});
+        break;
+      case Constants.LIST_VIEW:
+        viewType = Constants.LIST_VIEW;
+        setState(() {});
+        break;
+      default:
+    }
+  }
 }
