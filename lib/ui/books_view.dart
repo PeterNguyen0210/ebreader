@@ -1,34 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:ebook_reader/model/bookshelf.dart';
 import 'package:ebook_reader/bloc/bookshelf_bloc.dart';
-import 'package:ebook_reader/ui/bookshelf.dart';
+import 'package:ebook_reader/model/book.dart';
+import 'package:english_words/english_words.dart';
 import 'package:ebook_reader/model/constants.dart';
+import 'package:ebook_reader/style/text_styles.dart';
+import 'package:file_picker/file_picker.dart';
 
-class BookShelfListViewer extends StatefulWidget {
+class BookShelfViewer extends StatefulWidget {
+  final BookShelf bookshelf;
+  BookShelfViewer({Key key, @required this.bookshelf}) : super(key: key);
+
   @override
-  BookShelfListViewerState createState() => new BookShelfListViewerState();
+  BookShelfViewerState createState() => new BookShelfViewerState();
 }
 
-class BookShelfListViewerState extends State<BookShelfListViewer> {
-  final _biggerFont = const TextStyle(fontSize: 18);
+class BookShelfViewerState extends State<BookShelfViewer> {
   String viewType = Constants.LIST_VIEW;
 
   @override
   void initState() {
     super.initState();
-    _loadBookshelves();
-  }
-
-  void _loadBookshelves() {
-    print('loading bookshelves');
   }
 
   @override
   Widget build(BuildContext context) {
-    bloc.fetchAllBookshelves();
+    bloc.fetchBooksByBookshelfId(widget.bookshelf.id);
     return Scaffold(
       appBar: AppBar(
-        title: Text('EBReader'),
+        title: Center(
+          child: Text(widget.bookshelf.name),
+        ),
         actions: <Widget>[
           PopupMenuButton<String>(
             onSelected: doAction,
@@ -43,82 +45,92 @@ class BookShelfListViewerState extends State<BookShelfListViewer> {
           ),
         ],
       ),
-      body: generateBookshelfList(),
+      body: generateBooksView(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          addBookshelf();
+          getFilePath();
         },
         child: Icon(Icons.add),
       ),
     );
   }
 
-  Widget generateBookshelfList() {
+  Widget generateBooksView() {
     return new StreamBuilder(
-        stream: bloc.allBookshelves,
-        builder: (context, AsyncSnapshot<List<BookShelf>> snapshot) {
-          if (snapshot.hasData) {
+        stream: bloc.allBooksFromBookShelf,
+        builder: (context, AsyncSnapshot<List<Book>> snapshot) {
+          print("Snapshot" + snapshot.data.toString());
+          if (snapshot.hasData && snapshot.data.length != 0) {
             if (viewType == Constants.LIST_VIEW) {
               return buildList(snapshot);
             } else {
               return buildGrid(snapshot);
             }
           } else if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
           }
+
           return Center(child: CircularProgressIndicator());
         });
   }
 
-  Widget buildList(AsyncSnapshot<List<BookShelf>> snapshot) {
-    print('Bookshelves List: ' + snapshot.data.length.toString());
-    return ListView.builder(
+  Widget buildList(AsyncSnapshot<List<Book>> snapshot) {
+    return ListView.separated(
+        separatorBuilder: (context, i) => Divider(),
         itemCount: snapshot.data.length,
         itemBuilder: (BuildContext context, int i) {
           return ListTile(
             title: Text(
               snapshot.data[i].name,
-              style: _biggerFont,
+              style: TextStyles.biggerFont,
             ),
             onTap: () {
-              openBookshelf(snapshot.data[i]);
+              openBook(snapshot.data[i]);
             },
           );
         });
   }
 
-  Widget buildGrid(AsyncSnapshot<List<BookShelf>> snapshot) {
-    print('Bookshelves Grid : ' + snapshot.data.length.toString());
+  Widget buildGrid(AsyncSnapshot<List<Book>> snapshot) {
     return GridView.builder(
         itemCount: snapshot.data.length,
         gridDelegate:
             new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
         itemBuilder: (BuildContext context, int i) {
-          return Card(
-            elevation: 5.0,
-            child: new Container(
-              alignment: Alignment.center,
-              child: new Text(snapshot.data[i].name),
+          return GestureDetector(
+            child: Card(
+              elevation: 5.0,
+              child: new Container(
+                alignment: Alignment.center,
+                child: new Text(snapshot.data[i].name),
+              ),
             ),
+            onTap: () {
+              openBook(snapshot.data[i]);
+            },
           );
         });
   }
 
-  void addBookshelf() {
-    print('Adding Bookshelf');
-    bloc.addBookshelf("Testing");
+  void addBook(String filePath) {
+    print("Found" + filePath);
+
+    //bloc.addBook(widget.bookshelf.id, WordPair.random().asPascalCase);
     setState(() {});
   }
 
-  void openBookshelf(BookShelf bookshelf) {
-    print(bookshelf);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => BookShelfViewer(bookshelf: bookshelf)),
-    );
+  void getFilePath() async {
+    try {
+      String filePath = await FilePicker.getFilePath(type: FileType.ANY);
+      addBook(filePath);
+    } on Exception catch (e) {
+      print("## No File Selected");
+    }
   }
 
+  void openBook(Book book) {}
   void doAction(String choice) {
     switch (choice) {
       case Constants.GRID_VIEW:

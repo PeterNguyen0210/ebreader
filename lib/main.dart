@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'ui/bookshelf_list.dart';
+import 'ui/bookshelf_view.dart';
 
 void main() => runApp(EbookReader());
 
@@ -9,7 +9,7 @@ class EbookReader extends StatelessWidget {
     return MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.amber,
         ),
         home: new BookShelfListViewer());
   }

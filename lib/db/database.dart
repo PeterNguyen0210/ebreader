@@ -46,12 +46,26 @@ class DBProvider {
     //get the biggest id in the table
     var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM Bookshelf");
     int id = table.first["id"];
-    print(id);
+
     //insert to the table using the new id
     var raw = await db.rawInsert(
         "INSERT Into BookShelf (id,name)"
         " VALUES (?,?)",
         [id, name]);
+    return raw;
+  }
+
+  addBookToShelf(int bookshelfId, String name) async {
+    final db = await database;
+
+    var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM Book");
+    int bookId = table.first["id"];
+
+    //insert to the table using the new id
+    var raw = await db.rawInsert(
+        "INSERT Into Book (id,bookshelf_id,name,author_name,file_path)"
+        " VALUES (?,?,?,?,?)",
+        [bookId, bookshelfId, name, '', '']);
     return raw;
   }
 
@@ -66,5 +80,15 @@ class DBProvider {
         res.isNotEmpty ? res.map((c) => BookShelf.fromMap(c)).toList() : [];
 
     return bookshelves;
+  }
+
+  Future<List<Book>> getBooksByBookshelfId(int id) async {
+    final db = await database;
+    var res =
+        await db.rawQuery("SELECT * FROM Book WHERE bookshelf_id=?", [id]);
+    List<Book> books =
+        res.isNotEmpty ? res.map((c) => Book.fromMap(c)).toList() : [];
+
+    return books;
   }
 }
