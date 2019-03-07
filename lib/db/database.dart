@@ -36,7 +36,8 @@ class DBProvider {
           "bookshelf_id INTEGER,"
           "name TEXT,"
           "author_name TEXT,"
-          "file_path TEXT"
+          "file_path TEXT,"
+          "cover_art_path TEXT"
           ")");
     });
   }
@@ -55,17 +56,24 @@ class DBProvider {
     return raw;
   }
 
-  addBookToShelf(int bookshelfId, String name) async {
+  addBookToShelf(Book book) async {
     final db = await database;
 
     var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM Book");
-    int bookId = table.first["id"];
+    int id = table.first["id"];
 
     //insert to the table using the new id
     var raw = await db.rawInsert(
-        "INSERT Into Book (id,bookshelf_id,name,author_name,file_path)"
+        "INSERT Into Book (id,bookshelf_id,name,author_name,file_path,)"
         " VALUES (?,?,?,?,?)",
-        [bookId, bookshelfId, name, '', '']);
+        [
+          id,
+          book.bookshelfId,
+          book.name,
+          book.authorName,
+          book.filePath,
+          book.coverArtPath
+        ]);
     return raw;
   }
 

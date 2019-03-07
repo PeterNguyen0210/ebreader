@@ -26,7 +26,7 @@ class BookShelfListViewerState extends State<BookShelfListViewer> {
 
   @override
   Widget build(BuildContext context) {
-    bloc.fetchAllBookshelves();
+    bookshelfBloc.fetchAllBookshelves();
     return Scaffold(
       appBar: AppBar(
         title: Center(
@@ -58,7 +58,7 @@ class BookShelfListViewerState extends State<BookShelfListViewer> {
 
   Widget generateBookshelfView() {
     return new StreamBuilder(
-        stream: bloc.allBookshelves,
+        stream: bookshelfBloc.allBookshelves,
         builder: (context, AsyncSnapshot<List<BookShelf>> snapshot) {
           if (snapshot.hasData) {
             if (viewType == Constants.LIST_VIEW) {
@@ -117,7 +117,7 @@ class BookShelfListViewerState extends State<BookShelfListViewer> {
 
   void addBookshelf() {
     print('Adding Bookshelf');
-    bloc.addBookshelf(WordPair.random().asPascalCase);
+    bookshelfBloc.addBookshelf(WordPair.random().asPascalCase);
     setState(() {});
   }
 

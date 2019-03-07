@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+
 import 'package:ebook_reader/model/bookshelf.dart';
-import 'package:ebook_reader/bloc/bookshelf_bloc.dart';
 import 'package:ebook_reader/model/book.dart';
-import 'package:english_words/english_words.dart';
 import 'package:ebook_reader/model/constants.dart';
 import 'package:ebook_reader/style/text_styles.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:ebook_reader/service/book_service.dart';
+import 'package:ebook_reader/service/epub_book_service.dart';
+import 'package:ebook_reader/bloc/book_bloc.dart';
 
 class BookShelfViewer extends StatefulWidget {
   final BookShelf bookshelf;
@@ -25,7 +27,7 @@ class BookShelfViewerState extends State<BookShelfViewer> {
 
   @override
   Widget build(BuildContext context) {
-    bloc.fetchBooksByBookshelfId(widget.bookshelf.id);
+    bookBloc.fetchBooksByBookshelfId(widget.bookshelf.id);
     return Scaffold(
       appBar: AppBar(
         title: Center(
@@ -48,7 +50,7 @@ class BookShelfViewerState extends State<BookShelfViewer> {
       body: generateBooksView(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          getFilePath();
+          importBook();
         },
         child: Icon(Icons.add),
       ),
@@ -57,7 +59,7 @@ class BookShelfViewerState extends State<BookShelfViewer> {
 
   Widget generateBooksView() {
     return new StreamBuilder(
-        stream: bloc.allBooksFromBookShelf,
+        stream: bookBloc.allBooksFromBookShelf,
         builder: (context, AsyncSnapshot<List<Book>> snapshot) {
           print("Snapshot" + snapshot.data.toString());
           if (snapshot.hasData && snapshot.data.length != 0) {
@@ -121,12 +123,15 @@ class BookShelfViewerState extends State<BookShelfViewer> {
     setState(() {});
   }
 
-  void getFilePath() async {
+  void importBook() async {
     try {
       String filePath = await FilePicker.getFilePath(type: FileType.ANY);
-      addBook(filePath);
+      BookService bookService = new EpubBookService();
+      await bookService.importBook(filePath, widget.bookshelf.id);
+
+      setState(() {});
     } on Exception catch (e) {
-      print("## No File Selected");
+      print("## No File Selected" + e.toString());
     }
   }
 
