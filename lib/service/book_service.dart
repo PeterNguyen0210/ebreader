@@ -12,8 +12,7 @@ abstract class BookService {
     print("## Book extracted to : $bookDirectory");
 
     Book book = await parseBookMetadata(bookDirectory, filePath, bookshelfId);
-    print("## Book parsed : " + book.name);
-
+    print("## Book parsed : " + book.filePath);
     await bookBloc.saveBook(book);
   }
 

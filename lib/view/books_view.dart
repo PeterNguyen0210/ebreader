@@ -8,6 +8,7 @@ import 'package:ebook_reader/style/text_styles.dart';
 import 'package:ebook_reader/service/book_service.dart';
 import 'package:ebook_reader/service/epub_book_service.dart';
 import 'package:ebook_reader/bloc/book_bloc.dart';
+import 'dart:io';
 
 class BookShelfViewer extends StatefulWidget {
   final BookShelf bookshelf;
@@ -84,9 +85,21 @@ class BookShelfViewerState extends State<BookShelfViewer> {
         itemCount: snapshot.data.length,
         itemBuilder: (BuildContext context, int i) {
           return ListTile(
-            title: Text(
-              snapshot.data[i].name,
-              style: TextStyles.biggerFont,
+            leading: Container(
+              width: 50,
+              child: Image.file(
+                new File(snapshot.data[i].coverArtPath),
+                fit: BoxFit.cover,
+              ),
+            ),
+            title: Center(
+              child: Text(
+                snapshot.data[i].name,
+                style: TextStyles.biggerFont,
+              ),
+            ),
+            subtitle: Text(
+              snapshot.data[i].authorName,
             ),
             onTap: () {
               openBook(snapshot.data[i]);
@@ -137,7 +150,10 @@ class BookShelfViewerState extends State<BookShelfViewer> {
     }
   }
 
-  void openBook(Book book) {}
+  void openBook(Book book) {
+    print(book.filePath);
+  }
+
   void doAction(String choice) {
     switch (choice) {
       case Constants.GRID_VIEW:
@@ -148,7 +164,13 @@ class BookShelfViewerState extends State<BookShelfViewer> {
         viewType = Constants.LIST_VIEW;
         setState(() {});
         break;
+      case Constants.DELETE_ALL:
+        bookBloc.deleteAllBooks();
+        setState(() {});
+        break;
       default:
     }
   }
+
+  void showContextualMenu() {}
 }

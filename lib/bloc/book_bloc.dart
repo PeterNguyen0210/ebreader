@@ -22,6 +22,10 @@ class BookBloc {
     var out = await DBProvider.db.addBookToShelf(book);
   }
 
+  deleteAllBooks() async {
+    await DBProvider.db.deleteAllBooks();
+  }
+
   dispose() {
     _booksFetcher.close();
   }

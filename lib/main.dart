@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'ui/bookshelf_view.dart';
+import 'view/bookshelf_view.dart';
 
 void main() => runApp(EbookReader());
 

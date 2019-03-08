@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ebook_reader/model/bookshelf.dart';
 import 'package:ebook_reader/bloc/bookshelf_bloc.dart';
-import 'package:ebook_reader/ui/books_view.dart';
+import 'package:ebook_reader/view/books_view.dart';
 import 'package:ebook_reader/model/constants.dart';
 import 'package:english_words/english_words.dart';
 import 'package:ebook_reader/style/text_styles.dart';

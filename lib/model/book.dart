@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class Book {
-  int id;
+  String id;
   int bookshelfId;
   String name;
   String authorName;

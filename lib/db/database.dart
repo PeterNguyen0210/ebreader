@@ -7,6 +7,7 @@ import 'package:path/path.dart';
 
 import 'package:ebook_reader/model/bookshelf.dart';
 import 'package:ebook_reader/model/book.dart';
+import "package:ebook_reader/util/app_util.dart";
 
 class DBProvider {
   DBProvider._();
@@ -32,7 +33,7 @@ class DBProvider {
           "name TEXT"
           ")");
       await db.execute("CREATE TABLE Book ("
-          "id INTEGER PRIMARY KEY,"
+          "id TEXT PRIMARY KEY,"
           "bookshelf_id INTEGER,"
           "name TEXT,"
           "author_name TEXT,"
@@ -58,9 +59,7 @@ class DBProvider {
 
   addBookToShelf(Book book) async {
     final db = await database;
-
-    var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM Book");
-    int id = table.first["id"];
+    String id = AppUtil.generateUniqueIdForBook(book.filePath);
 
     //insert to the table using the new id
     var raw = await db.rawInsert(
@@ -98,5 +97,10 @@ class DBProvider {
         res.isNotEmpty ? res.map((c) => Book.fromMap(c)).toList() : [];
 
     return books;
+  }
+
+  deleteAllBooks() async {
+    final db = await database;
+    var res = await db.rawQuery("DELETE FROM Book");
   }
 }
