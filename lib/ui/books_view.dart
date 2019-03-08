@@ -125,7 +125,9 @@ class BookShelfViewerState extends State<BookShelfViewer> {
 
   void importBook() async {
     try {
-      String filePath = await FilePicker.getFilePath(type: FileType.ANY);
+      String filePath = await FilePicker.getFilePath(
+          type: FileType.CUSTOM, fileExtension: 'epub');
+      print("## File Path $filePath");
       BookService bookService = new EpubBookService();
       await bookService.importBook(filePath, widget.bookshelf.id);
 

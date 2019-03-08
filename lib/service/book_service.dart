@@ -9,26 +9,27 @@ abstract class BookService {
   // Extract, Parse and Save the book into DB
   importBook(String filePath, int bookshelfId) async {
     String bookDirectory = await extractBook(filePath);
-    print("##Book extracted, path is $bookDirectory");
-    Book book = await parseBookMetadata(bookDirectory);
-    print("##Book parsed " + book.toString());
-    //book.bookshelfId = bookshelfId;
+    print("## Book extracted to : $bookDirectory");
 
-    //await bookBloc.saveBook(book);
+    Book book = await parseBookMetadata(bookDirectory, filePath, bookshelfId);
+    print("## Book parsed : " + book.name);
+
+    await bookBloc.saveBook(book);
   }
 
   Future<String> extractBook(String filePath) async {
     final appRootDirectory = await AppUtil.tmpPath;
 
     // Extracting the book folder name from filePath
-    List<String> tmp = filePath.split("/");
-    final String folderName = tmp[tmp.length - 1].split(".")[0];
+    final String folderName = filePath.split("/").last.split(".")[0];
 
     String bookDirectory = appRootDirectory + "/" + folderName;
 
-    // Cleanup exisitng directory with same name
-    var dir = new Directory(bookDirectory);
-    dir.deleteSync(recursive: true);
+    // Try to Cleanup exisitng directory with same name
+    try {
+      var dir = new Directory(bookDirectory);
+      dir.deleteSync(recursive: true);
+    } on FileSystemException catch (e) {}
 
     // Extracting the book into a tmp folder
     List<int> bytes = new File(filePath).readAsBytesSync();
@@ -48,5 +49,6 @@ abstract class BookService {
   }
 
   // Book parsing logic will be specific to the format.
-  Future<Book> parseBookMetadata(String bookDirectory);
+  Future<Book> parseBookMetadata(
+      String bookDirectory, String filePath, int bookshelfId);
 }

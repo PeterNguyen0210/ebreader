@@ -64,8 +64,8 @@ class DBProvider {
 
     //insert to the table using the new id
     var raw = await db.rawInsert(
-        "INSERT Into Book (id,bookshelf_id,name,author_name,file_path,)"
-        " VALUES (?,?,?,?,?)",
+        "INSERT Into Book (id,bookshelf_id,name,author_name,file_path, cover_art_path)"
+        " VALUES (?,?,?,?,?,?)",
         [
           id,
           book.bookshelfId,
