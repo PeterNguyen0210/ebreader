@@ -8,17 +8,18 @@ import 'package:ebook_reader/style/text_styles.dart';
 import 'package:ebook_reader/service/book_service.dart';
 import 'package:ebook_reader/service/epub_book_service.dart';
 import 'package:ebook_reader/bloc/book_bloc.dart';
+import 'package:ebook_reader/view/book_view.dart';
 import 'dart:io';
 
-class BookShelfViewer extends StatefulWidget {
+class BookListViewer extends StatefulWidget {
   final BookShelf bookshelf;
-  BookShelfViewer({Key key, @required this.bookshelf}) : super(key: key);
+  BookListViewer({Key key, @required this.bookshelf}) : super(key: key);
 
   @override
-  BookShelfViewerState createState() => new BookShelfViewerState();
+  BookListViewerState createState() => new BookListViewerState();
 }
 
-class BookShelfViewerState extends State<BookShelfViewer> {
+class BookListViewerState extends State<BookListViewer> {
   String viewType = Constants.LIST_VIEW;
 
   @override
@@ -48,7 +49,10 @@ class BookShelfViewerState extends State<BookShelfViewer> {
           ),
         ],
       ),
-      body: generateBooksView(),
+      body: new Container(
+        padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+        child: generateBooksView(),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           importBook();
@@ -85,18 +89,17 @@ class BookShelfViewerState extends State<BookShelfViewer> {
         itemCount: snapshot.data.length,
         itemBuilder: (BuildContext context, int i) {
           return ListTile(
-            leading: Container(
+            leading: SizedBox(
+              height: 80,
               width: 50,
               child: Image.file(
                 new File(snapshot.data[i].coverArtPath),
-                fit: BoxFit.cover,
+                fit: BoxFit.fitWidth,
               ),
             ),
-            title: Center(
-              child: Text(
-                snapshot.data[i].name,
-                style: TextStyles.biggerFont,
-              ),
+            title: Text(
+              snapshot.data[i].name.trim(),
+              style: TextStyles.biggerFont,
             ),
             subtitle: Text(
               snapshot.data[i].authorName,
@@ -111,15 +114,18 @@ class BookShelfViewerState extends State<BookShelfViewer> {
   Widget buildGrid(AsyncSnapshot<List<Book>> snapshot) {
     return GridView.builder(
         itemCount: snapshot.data.length,
-        gridDelegate:
-            new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, childAspectRatio: 0.7),
         itemBuilder: (BuildContext context, int i) {
           return GestureDetector(
             child: Card(
-              elevation: 5.0,
-              child: new Container(
-                alignment: Alignment.center,
-                child: new Text(snapshot.data[i].name),
+              elevation: 3.0,
+              child: new SizedBox(
+                height: 500,
+                child: Image.file(
+                  new File(snapshot.data[i].coverArtPath),
+                  fit: BoxFit.fitWidth,
+                ),
               ),
             ),
             onTap: () {
@@ -151,7 +157,10 @@ class BookShelfViewerState extends State<BookShelfViewer> {
   }
 
   void openBook(Book book) {
-    print(book.filePath);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => BookViewer(book: book)),
+    );
   }
 
   void doAction(String choice) {

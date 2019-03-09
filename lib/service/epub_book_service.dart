@@ -32,15 +32,21 @@ class EpubBookService extends BookService {
       var metadataElement = parsedContent.findAllElements("metadata").first;
 
       // Getting book data from metadata element
-      book.name = metadataElement.findElements("dc:title").first.text;
-      book.authorName = metadataElement.findElements("dc:creator").first.text;
+      book.name = metadataElement.findElements("dc:title").first.text.trim();
+      print("Book" + book.name);
+      book.authorName =
+          metadataElement.findElements("dc:creator").first.text.trim();
       book.filePath = filePath;
       book.bookshelfId = bookshelfId;
+      contentPath = contentPath.split("/").length == 1
+          ? ""
+          : contentPath.split("/").removeAt(0);
+
       book.coverArtPath = await findOrCreateCoverArt(
           parsedContent.findAllElements("manifest").first,
           bookDirectory + "/" + contentPath.split("/").removeAt(0),
           book.name);
-
+      print("## CoverPAth" + book.coverArtPath);
       return book;
     } on Exception catch (e) {
       print("Exception occured while reading/parsing container file $e");

@@ -19,7 +19,7 @@ class BookBloc {
   }
 
   saveBook(Book book) async {
-    var out = await DBProvider.db.addBookToShelf(book);
+    await DBProvider.db.addBookToShelf(book);
   }
 
   deleteAllBooks() async {

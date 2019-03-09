@@ -77,7 +77,7 @@ class DBProvider {
   }
 
   deleteBookshelf(int id) async {
-    final db = await database;
+    //final db = await database;
   }
 
   Future<List<BookShelf>> getAllBookshelves() async {
@@ -101,6 +101,6 @@ class DBProvider {
 
   deleteAllBooks() async {
     final db = await database;
-    var res = await db.rawQuery("DELETE FROM Book");
+    await db.rawQuery("DELETE FROM Book");
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
 
 class TextStyles {
-  static final biggerFont = const TextStyle(fontSize: 18);
+  static final biggerFont = const TextStyle(fontSize: 16);
 }

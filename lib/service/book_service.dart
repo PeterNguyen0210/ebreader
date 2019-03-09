@@ -14,6 +14,9 @@ abstract class BookService {
     Book book = await parseBookMetadata(bookDirectory, filePath, bookshelfId);
     print("## Book parsed : " + book.filePath);
     await bookBloc.saveBook(book);
+
+    // Cleanup of the directory
+    new Directory(bookDirectory).deleteSync(recursive: true);
   }
 
   Future<String> extractBook(String filePath) async {
@@ -28,7 +31,9 @@ abstract class BookService {
     try {
       var dir = new Directory(bookDirectory);
       dir.deleteSync(recursive: true);
-    } on FileSystemException catch (e) {}
+    } on FileSystemException catch (e) {
+      print(e);
+    }
 
     // Extracting the book into a tmp folder
     List<int> bytes = new File(filePath).readAsBytesSync();
