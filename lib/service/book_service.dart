@@ -1,58 +1,32 @@
-import 'package:ebook_reader/model/book.dart';
 import 'dart:io';
-import 'package:archive/archive.dart';
-import 'package:archive/archive_io.dart';
+import 'package:ebook_reader/model/book.dart';
+import 'package:ebook_reader/service/image_service.dart';
+import 'package:epub_parser/epub_parser.dart';
+
 import 'package:ebook_reader/util/app_util.dart';
 import 'package:ebook_reader/bloc/book_bloc.dart';
 
-abstract class BookService {
+class BookService {
   // Extract, Parse and Save the book into DB
   importBook(String filePath, int bookshelfId) async {
-    String bookDirectory = await extractBook(filePath);
-    print("## Book extracted to : $bookDirectory");
+    String appDirectory = await AppUtil.localPath;
+    File bookFile = new File(filePath);
+    String bookAppPath = appDirectory + "/" + filePath.split("/").last;
+    bookFile = await bookFile.copy(bookAppPath);
+    print("Book copied to : $bookFile");
 
-    Book book = await parseBookMetadata(bookDirectory, filePath, bookshelfId);
-    print("## Book parsed : " + book.filePath);
-    await bookBloc.saveBook(book);
-
-    // Cleanup of the directory
-    new Directory(bookDirectory).deleteSync(recursive: true);
-  }
-
-  Future<String> extractBook(String filePath) async {
-    final appRootDirectory = await AppUtil.tmpPath;
-
-    // Extracting the book folder name from filePath
-    final String folderName = filePath.split("/").last.split(".")[0];
-
-    String bookDirectory = appRootDirectory + "/" + folderName;
-
-    // Try to Cleanup exisitng directory with same name
-    try {
-      var dir = new Directory(bookDirectory);
-      dir.deleteSync(recursive: true);
-    } on FileSystemException catch (e) {
-      print(e);
+    EpubBookRef bookRef = await EpubReader.openBook(bookFile.readAsBytesSync());
+    if (bookRef.coverImage == null) {
+      bookRef.coverImage = ImageService.generateCoverArt(bookRef.title);
     }
 
-    // Extracting the book into a tmp folder
-    List<int> bytes = new File(filePath).readAsBytesSync();
-    Archive archive = new ZipDecoder().decodeBytes(bytes);
-    for (ArchiveFile file in archive) {
-      String filename = file.name;
-      if (file.isFile) {
-        List<int> data = file.content;
-        new File(bookDirectory + '/' + filename)
-          ..createSync(recursive: true)
-          ..writeAsBytesSync(data);
-      } else {
-        new Directory(bookDirectory + '/' + filename)..create(recursive: true);
-      }
-    }
-    return bookDirectory;
+    print("## Book parsed");
+    bookBloc.saveBook(bookAppPath, bookRef.title, bookRef.author, bookRef.coverImage);
   }
 
-  // Book parsing logic will be specific to the format.
-  Future<Book> parseBookMetadata(
-      String bookDirectory, String filePath, int bookshelfId);
+  readBook(Book book) async {
+    File bookFile = new File(book.filePath);
+    EpubBook epubBook = await EpubReader.readBook(bookFile.readAsBytesSync());
+    print(epubBook.content.htmlContent);
+  }
 }

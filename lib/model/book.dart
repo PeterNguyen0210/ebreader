@@ -2,35 +2,26 @@ import 'dart:convert';
 
 class Book {
   String id;
-  int bookshelfId;
-  String name;
+  String title;
   String authorName;
   String filePath;
-  String coverArtPath;
+  List<int> coverArt;
 
-  Book(
-      {this.id,
-      this.bookshelfId,
-      this.name,
-      this.authorName,
-      this.filePath,
-      this.coverArtPath});
+  Book({this.id, this.title, this.authorName, this.filePath, this.coverArt});
 
   factory Book.fromMap(Map<String, dynamic> json) => new Book(
       id: json["id"],
-      bookshelfId: json["bookshelf_id"],
-      name: json["name"],
+      title: json["title"],
       authorName: json["author_name"],
       filePath: json['file_path'],
-      coverArtPath: json['cover_art_path']);
+      coverArt: json['cover_art']);
 
   Map<String, dynamic> toMap() => {
         "id": id,
-        "bookshelf_id": bookshelfId,
-        "name": name,
+        "title": title,
         "author_name": authorName,
         "file_path": filePath,
-        "cover_art_path": coverArtPath,
+        "cover_art": coverArt,
       };
 }
 

@@ -34,11 +34,10 @@ class DBProvider {
           ")");
       await db.execute("CREATE TABLE Book ("
           "id TEXT PRIMARY KEY,"
-          "bookshelf_id INTEGER,"
-          "name TEXT,"
+          "title TEXT,"
           "author_name TEXT,"
           "file_path TEXT,"
-          "cover_art_path TEXT"
+          "cover_art BLOB"
           ")");
     });
   }
@@ -63,16 +62,9 @@ class DBProvider {
 
     //insert to the table using the new id
     var raw = await db.rawInsert(
-        "INSERT Into Book (id,bookshelf_id,name,author_name,file_path, cover_art_path)"
-        " VALUES (?,?,?,?,?,?)",
-        [
-          id,
-          book.bookshelfId,
-          book.name,
-          book.authorName,
-          book.filePath,
-          book.coverArtPath
-        ]);
+        "INSERT Into Book (id,title,author_name,file_path,cover_art)"
+        " VALUES (?,?,?,?,?)",
+        [id, book.title, book.authorName, book.filePath, book.coverArt]);
     return raw;
   }
 
@@ -91,10 +83,8 @@ class DBProvider {
 
   Future<List<Book>> getBooksByBookshelfId(int id) async {
     final db = await database;
-    var res =
-        await db.rawQuery("SELECT * FROM Book WHERE bookshelf_id=?", [id]);
-    List<Book> books =
-        res.isNotEmpty ? res.map((c) => Book.fromMap(c)).toList() : [];
+    var res = await db.rawQuery("SELECT * FROM Book");
+    List<Book> books = res.isNotEmpty ? res.map((c) => Book.fromMap(c)).toList() : [];
 
     return books;
   }

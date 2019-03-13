@@ -11,14 +11,20 @@ class BookBloc {
   fetchBooksByBookshelfId(int id) async {
     List<Book> books = await DBProvider.db.getBooksByBookshelfId(id);
     if (books.length == 0) {
-      _booksFetcher
-          .addError("No Books Found. Click on + button to add new books.");
+      _booksFetcher.addError("No Books Found. Click on + button to add new books.");
     } else {
       _booksFetcher.sink.add(books);
     }
   }
 
-  saveBook(Book book) async {
+  saveBook(String filePath, String title, String author, List<int> coverImage) async {
+    Book book = new Book();
+
+    book.title = title;
+    book.authorName = author;
+    book.coverArt = coverImage;
+    book.filePath = filePath;
+
     await DBProvider.db.addBookToShelf(book);
   }
 

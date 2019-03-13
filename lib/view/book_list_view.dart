@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -6,13 +7,12 @@ import 'package:ebook_reader/model/book.dart';
 import 'package:ebook_reader/model/constants.dart';
 import 'package:ebook_reader/style/text_styles.dart';
 import 'package:ebook_reader/service/book_service.dart';
-import 'package:ebook_reader/service/epub_book_service.dart';
 import 'package:ebook_reader/bloc/book_bloc.dart';
 import 'package:ebook_reader/view/book_view.dart';
-import 'dart:io';
 
 class BookListViewer extends StatefulWidget {
   final BookShelf bookshelf;
+  final BookService bookService = new BookService();
   BookListViewer({Key key, @required this.bookshelf}) : super(key: key);
 
   @override
@@ -92,13 +92,13 @@ class BookListViewerState extends State<BookListViewer> {
             leading: SizedBox(
               height: 80,
               width: 50,
-              child: Image.file(
-                new File(snapshot.data[i].coverArtPath),
-                fit: BoxFit.fitWidth,
+              child: Image.memory(
+                snapshot.data[i].coverArt,
+                fit: BoxFit.contain,
               ),
             ),
             title: Text(
-              snapshot.data[i].name.trim(),
+              snapshot.data[i].title,
               style: TextStyles.biggerFont,
             ),
             subtitle: Text(
@@ -115,17 +115,14 @@ class BookListViewerState extends State<BookListViewer> {
     return GridView.builder(
         itemCount: snapshot.data.length,
         gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3, childAspectRatio: 0.7),
+            crossAxisCount: 3, childAspectRatio: 0.65),
         itemBuilder: (BuildContext context, int i) {
           return GestureDetector(
             child: Card(
               elevation: 3.0,
-              child: new SizedBox(
-                height: 500,
-                child: Image.file(
-                  new File(snapshot.data[i].coverArtPath),
-                  fit: BoxFit.fitWidth,
-                ),
+              child: Image.memory(
+                snapshot.data[i].coverArt,
+                fit: BoxFit.contain,
               ),
             ),
             onTap: () {
@@ -144,11 +141,10 @@ class BookListViewerState extends State<BookListViewer> {
 
   void importBook() async {
     try {
-      String filePath = await FilePicker.getFilePath(
-          type: FileType.CUSTOM, fileExtension: 'epub');
+      String filePath = await FilePicker.getFilePath(type: FileType.CUSTOM, fileExtension: 'epub');
       print("## File Path $filePath");
-      BookService bookService = new EpubBookService();
-      await bookService.importBook(filePath, widget.bookshelf.id);
+
+      await widget.bookService.importBook(filePath, widget.bookshelf.id);
 
       setState(() {});
     } on Exception catch (e) {
@@ -156,7 +152,8 @@ class BookListViewerState extends State<BookListViewer> {
     }
   }
 
-  void openBook(Book book) {
+  void openBook(Book book) async {
+    await widget.bookService.readBook(book);
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => BookViewer(book: book)),
